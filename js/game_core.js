@@ -1,6 +1,5 @@
-// js/game_core.js (Fix: Global Scope)
+// js/game_core.js (Fix: Function Conflict)
 
-// ★変更点: window. をつけて確実に共有させる
 window.params = new URLSearchParams(window.location.search);
 window.MODE = window.params.get('mode') || 'offline';
 
@@ -28,53 +27,77 @@ function updateInputDisplay() {
     while(d.length < maxLen) d.push("_");
     let str = d.join((window.currentPhase === 'lobby' && window.MODE === 'friend') ? "" : " ");
     
-    document.getElementById('footerInputDisplay').innerText = str;
-    document.getElementById('callBtn').classList.toggle('disabled', window.currentInput.length !== maxLen);
+    const fDisp = document.getElementById('footerInputDisplay');
+    if(fDisp) fDisp.innerText = str;
+    const cBtn = document.getElementById('callBtn');
+    if(cBtn) cBtn.classList.toggle('disabled', window.currentInput.length !== maxLen);
     
-    if(window.currentPhase==='lobby' && window.MODE==='friend') document.getElementById('loginDisplay').innerText = str;
-    if(window.currentPhase==='setup') document.getElementById('setupDisplay').innerText = str;
+    if(window.currentPhase==='lobby' && window.MODE==='friend') {
+        const lDisp = document.getElementById('loginDisplay');
+        if(lDisp) lDisp.innerText = str;
+    }
+    if(window.currentPhase==='setup') {
+        const sDisp = document.getElementById('setupDisplay');
+        if(sDisp) sDisp.innerText = str;
+    }
 }
 
 function updateTurnUI(role) {
     clearInterval(window.timerInterval);
     window.timeLeft = 60; 
-    const timerDisp = document.getElementById('timerDisplay');
-    if(timerDisp) timerDisp.innerText = window.timeLeft;
+    const tDisp = document.getElementById('timerDisplay');
+    if(tDisp) tDisp.innerText = window.timeLeft;
     
     const p1b = document.getElementById('badgeP1');
     const p2b = document.getElementById('badgeP2');
+    const msg = document.getElementById('gameMessage');
+    const cBtn = document.getElementById('callBtn');
     
     if(window.MODE === 'offline') {
-        if(window.isMyTurn) { p1b.classList.add('active'); p2b.classList.remove('active'); }
-        else { p2b.classList.add('active'); p1b.classList.remove('active'); }
+        if(window.isMyTurn) { 
+            if(p1b) p1b.classList.add('active'); 
+            if(p2b) p2b.classList.remove('active'); 
+        } else { 
+            if(p2b) p2b.classList.add('active'); 
+            if(p1b) p1b.classList.remove('active'); 
+        }
     } else {
-        p1b.classList.toggle('active', role==='p1' ? window.isMyTurn : !window.isMyTurn);
-        p2b.classList.toggle('active', role==='p2' ? window.isMyTurn : !window.isMyTurn);
+        if(p1b) p1b.classList.toggle('active', role==='p1' ? window.isMyTurn : !window.isMyTurn);
+        if(p2b) p2b.classList.toggle('active', role==='p2' ? window.isMyTurn : !window.isMyTurn);
     }
 
     if(window.isMyTurn) {
-        document.getElementById('gameMessage').innerText = `あなたのターン (${window.turnCount}手目)`;
-        document.getElementById('callBtn').classList.remove('disabled');
+        if(msg) msg.innerText = `あなたのターン (${window.turnCount}手目)`;
+        if(cBtn) cBtn.classList.remove('disabled');
         
         window.timerInterval = setInterval(() => {
             window.timeLeft--; 
-            if(timerDisp) timerDisp.innerText = window.timeLeft < 10 ? "0"+window.timeLeft : window.timeLeft;
+            if(tDisp) tDisp.innerText = window.timeLeft < 10 ? "0"+window.timeLeft : window.timeLeft;
             if(window.timeLeft <= 0) { 
                 clearInterval(window.timerInterval); 
                 while(window.currentInput.length < 3) {
                     let n = Math.floor(Math.random()*10);
                     if(!window.currentInput.includes(n)) window.currentInput.push(n);
                 } 
-                if(typeof window.submitGuess === 'function') window.submitGuess();
+                // ★修正: 時間切れ時のアクションを統一関数経由で呼び出す
+                window.triggerSubmit();
             }
         }, 1000);
     } else {
-        document.getElementById('gameMessage').innerText = `相手は考えています... (${window.turnCount}手目)`;
-        document.getElementById('callBtn').classList.add('disabled');
+        if(msg) msg.innerText = `相手は考えています... (${window.turnCount}手目)`;
+        if(cBtn) cBtn.classList.add('disabled');
     }
 }
 
-// 他のファイルから呼べるように window. に入れる
+// ★新規: モードに応じた送信関数を呼ぶラッパー
+window.triggerSubmit = function() {
+    if(window.MODE === 'offline') {
+        if(typeof window.submitGuessOffline === 'function') window.submitGuessOffline();
+    } else {
+        if(typeof window.submitGuessOnline === 'function') window.submitGuessOnline();
+    }
+};
+
 window.checkHitBlow = function(g, t) {
     let h=0,b=0;
     for(let i=0;i<3;i++){ if(g[i]===t[i])h++; else if(t.includes(g[i]))b++; }
@@ -109,12 +132,11 @@ document.querySelectorAll('button[data-key]').forEach(btn => {
 function handleKey(key, btnEle) {
     btnEle.classList.add('key-active'); setTimeout(()=>btnEle.classList.remove('key-active'), 100);
     
-    // window.変数 を参照して判定
     if(window.currentPhase === 'lobby' && window.MODE === 'random') return; 
     if(window.currentPhase === 'battle' && !window.isMyTurn) return;
     
-    const setupStatus = document.getElementById('setupStatus');
-    if(window.currentPhase === 'setup' && setupStatus && !setupStatus.classList.contains('hidden')) return;
+    const sStat = document.getElementById('setupStatus');
+    if(window.currentPhase === 'setup' && sStat && !sStat.classList.contains('hidden')) return;
 
     const maxLen = (window.currentPhase === 'lobby' && window.MODE === 'friend') ? 4 : 3;
 
@@ -123,7 +145,6 @@ function handleKey(key, btnEle) {
     } else if(key === 'call') {
         if(window.currentInput.length !== maxLen) { SE.error(); return; }
         SE.enter(); 
-        // モードに応じた処理を呼び出す
         if(window.MODE === 'offline') {
             if(typeof window.offlineAction === 'function') window.offlineAction();
         } else {
