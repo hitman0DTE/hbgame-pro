@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hit & Blow - Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #4a7a9a; color: #fff; font-family: 'M PLUS 1p', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }
+        h1 { font-size: 32px; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .menu-btn { display: block; width: 100%; max-width: 300px; padding: 18px; margin: 10px 0; text-decoration: none; color: #fff; font-weight: 800; font-size: 18px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.1s; position: relative; overflow: hidden; }
+        .menu-btn:active { transform: scale(0.98); }
+        .btn-offline { background: linear-gradient(135deg, #1a5c9a, #3a8cd9); border: 2px solid #fff; }
+        .btn-friend { background: linear-gradient(135deg, #34c759, #30d158); border: 2px solid #fff; }
+        .btn-random { background: linear-gradient(135deg, #ff9500, #ff3b30); border: 2px solid #fff; }
+        .desc { font-size: 11px; opacity: 0.9; display: block; margin-top: 4px; font-weight: normal; }
+        .footer { margin-top: 40px; font-size: 12px; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <h1>Hit & Blow</h1>
+    <a href="./game.html?mode=random" class="menu-btn btn-random">ランダム対戦<span class="desc">全国の誰かと勝負 (通信)</span></a>
+    <a href="./game.html?mode=friend" class="menu-btn btn-friend">フレンド対戦<span class="desc">合言葉を決めて勝負 (通信)</span></a>
+    <a href="./game.html?mode=offline" class="menu-btn btn-offline">CPU対戦<span class="desc">1人で練習 (AI搭載)</span></a>
+    <div class="footer">Select Game Mode</div>
+</body>
+</html>
