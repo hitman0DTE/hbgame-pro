@@ -1,5 +1,5 @@
 @charset "UTF-8";
-/* --- 共通デザイン --- */
+
 :root {
     --my-color: #1a5c9a; --my-light: #3a8cd9;
     --opp-color: #8a0a2a; --opp-light: #b91c4c;
@@ -7,13 +7,19 @@
     --accent-red: #e60012;
     --table-header: #3a5a7a; --table-row-odd: #dbe4f1; --table-row-even: #c8d6e8; --table-text: #1a3a5a;
 }
+
 body {
     font-family: 'M PLUS 1p', sans-serif;
     background-color: var(--bg-color); color: var(--text-color);
-    margin: 0; padding: 0; height: 100vh;
+    margin: 0; padding: 0;
+    /* ★修正点1: dvhを使ってバーの高さを除外する */
+    height: 100vh; 
+    height: 100dvh; 
     display: flex; flex-direction: column;
     -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; overflow: hidden;
 }
+
+/* ヘッダー */
 .top-header { display: flex; height: 80px; background: linear-gradient(90deg, var(--my-color) 50%, var(--opp-color) 50%); position: relative; flex-shrink: 0; }
 .player-info { width: 50%; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; }
 .player-info.mine { justify-content: flex-start; }
@@ -25,12 +31,16 @@ body {
 .order-label { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #666; }
 .order-label.active.mine { background: var(--my-light); }
 .order-label.active.opp { background: var(--opp-light); }
+
+/* メインエリア */
 .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 #gameArea { display: flex; flex-direction: column; height: 100%; }
 .secret-area { display: flex; justify-content: space-between; padding: 15px 20px; background: linear-gradient(90deg, #124275 50%, #690620 50%); flex-shrink: 0; }
 .num-cards { display: flex; gap: 5px; }
 .num-card { width: 45px; height: 55px; background: #fff; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: 800; color: var(--my-color); box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
 .num-card.question { background: linear-gradient(135deg, #5a8ca8, #3a6c88); color: #fff; font-size: 32px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); position: relative; }
+
+/* 履歴リスト */
 .history-container { flex-grow: 1; display: flex; padding: 10px; gap: 10px; overflow: hidden; }
 .history-col { width: 50%; background: #fff; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
 .history-header { background: var(--table-header); color: #fff; font-weight: 700; font-size: 14px; padding: 8px; display: flex; justify-content: space-between; }
@@ -43,12 +53,17 @@ body {
 .h-num { flex-grow: 1; text-align: center; letter-spacing: 3px; }
 .h-val { width: 25px; text-align: center; }
 .h-val.hit-3 { color: var(--accent-red); }
+
+/* オーバーレイ */
 .overlay-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: rgba(0,0,0,0.2); color: #fff; }
 .overlay-title { font-size: 20px; margin-bottom: 20px; font-weight: bold; text-align: center; }
 .overlay-input { font-size: 40px; font-weight: 800; letter-spacing: 5px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 30px; font-family: 'Courier New', monospace; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px; border: 2px solid #fff; }
 .setup-input { font-size: 60px; font-weight: 800; letter-spacing: 15px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 40px; font-family: 'Courier New', monospace; }
 .overlay-status { font-size: 16px; color: #eee; margin-top: 10px; font-weight:bold; animation: blink 1.5s infinite; }
 @keyframes blink { 50% { opacity: 0.5; } }
+
+/* ロビー */
+.lobby-content { text-align: center; width: 100%; }
 .match-btn { background: linear-gradient(135deg, #ff9500, #ff3b30); color: #fff; font-size: 24px; font-weight: 800; padding: 20px 40px; border: 4px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.1s; }
 .match-btn:active { transform: scale(0.95); }
 .loader-container { margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -58,13 +73,21 @@ body {
 @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .matched-text { font-size: 48px; font-weight: 900; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); letter-spacing: 5px; margin-bottom: 20px; }
 .vs-text { font-size: 24px; font-weight: bold; color: #ccc; }
-.footer-area { background: var(--bg-color); padding: 10px 15px 30px; position: relative; flex-shrink: 0; z-index: 10; }
+
+/* フッター */
+.footer-area { 
+    background: var(--bg-color); 
+    /* ★修正点2: 下部に安全な余白を持たせる */
+    padding: 10px 15px calc(20px + env(safe-area-inset-bottom)); 
+    position: relative; flex-shrink: 0; z-index: 10; 
+}
 .footer-bg-curve { position: absolute; top: -20px; left: 0; width: 100%; height: 30px; background: var(--bg-color); border-radius: 50% 50% 0 0 / 100% 100% 0 0; z-index: 0; }
 .status-bar { position: relative; z-index: 1; display: flex; align-items: center; margin-bottom: 15px; }
 .timer-circle { width: 50px; height: 50px; background: #fff; border-radius: 50%; border: 4px solid #3a5a7a; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 800; color: var(--table-text); position: relative; }
 .input-status-container { flex-grow: 1; margin-left: 15px; display: flex; flex-direction: column; align-items: center; }
 .game-message { font-size: 12px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); margin-bottom: 5px; }
 .input-display-box { width: 200px; height: 45px; background: linear-gradient(to bottom, #4a7a9a, #2a5a7a); border: 2px solid #fff; border-radius: 10px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; font-size: 28px; font-weight: 800; letter-spacing: 8px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.7); }
+
 .keypad-area { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 8px; }
 .key-btn { height: 55px; background: linear-gradient(to bottom, #e0e0e0, #c0c0c0); border: none; border-radius: 8px; font-size: 24px; font-weight: 800; color: #333; box-shadow: 0 3px 0 #999; }
 .key-btn:active.key-active { transform: translateY(3px); box-shadow: none; background: #b0b0b0; }
